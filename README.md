@@ -37,4 +37,4 @@ Nagrik AI is a multilingual election guide assistant that helps users understand
 
 ## Deployment Link
 
-- Add your deployed URL here: `https://your-deployment-link`
+deployed URL here: `https://nagrik-ai-462639331983.asia-south1.run.app/`
