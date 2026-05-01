@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Election Guide Assistant — your AI-powered guide to voting, registration, and the election process." />
+  <title>Nagrik AI - Smart Election Assistant</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       NAVIGATION
+       ═══════════════════════════════════════════════════════════════ -->
+  <nav class="navbar" id="navbar">
+    <div class="logo-container">
+      <img src="{{ url_for('static', filename='images/Nagrik_ai_final_logo.png') }}" alt="Nagrik AI Logo" />
+      <span class="brand-text">Nagrik AI</span>
+    </div>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#hero" data-i18n="navHome">Home</a></li>
+      <li><a href="#election-flow" data-i18n="navFlow">Flow</a></li>
+      <li><a href="#election-steps" data-i18n="navSteps">Steps</a></li>
+      <li><a href="#timeline" data-i18n="navTimeline">Timeline</a></li>
+      <li><a href="#ready-checker" data-i18n="navReady">Am I Ready?</a></li>
+      <li><a href="#faq" data-i18n="navFAQ">FAQ</a></li>
+      <li><a href="#quiz" data-i18n="navQuiz">Quiz</a></li>
+      <li><a href="#how-to-vote" data-i18n="navGuide">Guide</a></li>
+      <li>
+        <select id="languageSelect" class="lang-selector" aria-label="Select language" data-i18n-aria-label="languageSelectorAria">
+          <option value="en">English</option>
+          <option value="hi">हिन्दी</option>
+          <option value="mr">मराठी</option>
+          <option value="ta">தமிழ்</option>
+        </select>
+      </li>
+    </ul>
+  </nav>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SECTION 1 — HERO (ChatGPT-style AI Chat Interface)
+       ═══════════════════════════════════════════════════════════════ -->
+  <section class="hero" id="hero">
+    <div class="hero-content">
+      <h1 class="hero-heading">Nagrik AI</h1>
+      <p class="hero-subheading" data-i18n="subheading">Ask anything about elections and get clear answers.</p>
+
+      <!-- Chat Container (Glassmorphic) -->
+      <div class="chat-container" id="chatContainer">
+
+        <!-- Messages Area -->
+        <div class="chat-messages" id="chatMessages" aria-live="polite">
+          <!-- Welcome prompt -->
+          <div class="chat-welcome" id="chatWelcome">
+            <div class="chat-welcome-icon">
+              <img src="{{ url_for('static', filename='images/Nagrik_ai_final_logo.png') }}" alt="Nagrik AI" style="width: 32px; height: auto;" />
+            </div>
+            <p data-i18n="welcomeText">Hi! I'm your Election AI. Ask me anything about voting or the election process.</p>
+          </div>
+          <!-- Messages injected here by JS -->
+        </div>
+
+        <!-- Input Area -->
+        <div class="chat-input-area">
+          <div class="chat-input-wrapper">
+            <button id="ttsToggleBtn" class="chat-icon-btn" aria-label="Toggle Text-to-Speech" title="Read responses aloud">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+            </button>
+            <label for="chatInput" class="sr-only" data-i18n="chatInputLabel">Ask your election question</label>
+            <textarea id="chatInput" placeholder="Ask about voting, registration, election steps..." rows="1" maxlength="300"></textarea>
+            <button id="micBtn" class="chat-icon-btn" aria-label="Voice input" title="Click to speak" data-i18n-aria-label="micBtnAria">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+            </button>
+            <button id="sendBtn" class="chat-send-btn" aria-label="Send message" disabled data-i18n-aria-label="sendBtnAria">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </button>
+          </div>
+          <p id="chatValidationMessage" class="chat-validation-message" role="alert" aria-live="polite"></p>
+        </div>
+      </div>
+
+      <!-- Suggested Questions -->
+      <div class="chat-suggestions" id="chatSuggestions">
+        <button class="suggestion-pill" data-i18n="suggestion1">What is voting?</button>
+        <button class="suggestion-pill" data-i18n="suggestion2">Steps in election process</button>
+        <button class="suggestion-pill" data-i18n="suggestion3">How to register as a voter</button>
+        <button class="suggestion-pill" data-i18n="suggestion4">What happens after voting?</button>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SECTION 2 — GUIDED ELECTION FLOW
+       ═══════════════════════════════════════════════════════════════ -->
+  <section class="section" id="election-flow">
+    <div class="container">
+      <h2 class="section-title fade-in" data-i18n="flowTitle">Guided Election Flow</h2>
+      <p class="section-subtitle fade-in" data-i18n="flowSubtitle">Follow the journey from registration to results.</p>
+
+      <div class="flow-steps">
+        <div class="flow-step glass-card fade-in">
+          <div class="flow-number">1</div>
+          <h3 data-i18n="flowStep1Title">Register</h3>
+          <p data-i18n="flowStep1Desc">Complete your voter registration with your local election office or online portal.</p>
+        </div>
+        <div class="flow-connector fade-in">→</div>
+        <div class="flow-step glass-card fade-in">
+          <div class="flow-number">2</div>
+          <h3 data-i18n="flowStep2Title">Research</h3>
+          <p data-i18n="flowStep2Desc">Learn about candidates, ballot measures, and your polling location.</p>
+        </div>
+        <div class="flow-connector fade-in">→</div>
+        <div class="flow-step glass-card fade-in">
+          <div class="flow-number">3</div>
+          <h3 data-i18n="flowStep3Title">Vote</h3>
+          <p data-i18n="flowStep3Desc">Cast your ballot — in person, by mail, or through early voting.</p>
+        </div>
+        <div class="flow-connector fade-in">→</div>
+        <div class="flow-step glass-card fade-in">
+          <div class="flow-number">4</div>
+          <h3 data-i18n="flowStep4Title">Results</h3>
+          <p data-i18n="flowStep4Desc">Ballots are counted and certified. Official results are announced.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SECTION 3 — ELECTION STEPS (Cards)
+       ═══════════════════════════════════════════════════════════════ -->
+  <section class="section section-alt" id="election-steps">
+    <div class="container">
+      <h2 class="section-title fade-in" data-i18n="stepsTitle">Election Steps</h2>
+      <p class="section-subtitle fade-in" data-i18n="stepsSubtitle">A deeper look at every stage of the process.</p>
+
+      <div class="steps-grid">
+        <div class="step-card glass-card fade-in">
+          <img src="/static/images/parliament.png" alt="Indian Parliament building — voter registration" class="step-img" loading="lazy">
+          <div class="step-icon">📋</div>
+          <h3 data-i18n="step1Title">Voter Registration</h3>
+          <p data-i18n="step1Desc">Verify your eligibility, gather required documents, and submit your registration before the deadline.</p>
+        </div>
+        <div class="step-card glass-card fade-in">
+          <img src="/static/images/india_default.png" alt="Indian Parliament — primary elections" class="step-img" loading="lazy">
+          <div class="step-icon">🏛️</div>
+          <h3 data-i18n="step2Title">Primary Elections</h3>
+          <p data-i18n="step2Desc">Political parties hold primaries or caucuses to select their candidates for the general election.</p>
+        </div>
+        <div class="step-card glass-card fade-in">
+          <img src="/static/images/north_india.png" alt="Campaign rally scene in North India" class="step-img" loading="lazy">
+          <div class="step-icon">📢</div>
+          <h3 data-i18n="step3Title">Campaign Season</h3>
+          <p data-i18n="step3Desc">Candidates present platforms, participate in debates, and campaign to win voter support.</p>
+        </div>
+        <div class="step-card glass-card fade-in">
+          <img src="/static/images/voting_scene.png" alt="Citizens casting ballots at EVM" class="step-img" loading="lazy">
+          <div class="step-icon">🗳️</div>
+          <h3 data-i18n="step4Title">Casting Ballots</h3>
+          <p data-i18n="step4Desc">Vote at your designated polling station, via mail-in ballot, or through early voting options.</p>
+        </div>
+        <div class="step-card glass-card fade-in">
+          <img src="/static/images/maharashtra.png" alt="Vote counting scene in Maharashtra" class="step-img" loading="lazy">
+          <div class="step-icon">📊</div>
+          <h3 data-i18n="step5Title">Vote Counting</h3>
+          <p data-i18n="step5Desc">Election officials tally all ballots — including absentee, mail-in, and provisional votes.</p>
+        </div>
+        <div class="step-card glass-card fade-in">
+          <img src="/static/images/south_india.png" alt="Election certification scene in South India" class="step-img" loading="lazy">
+          <div class="step-icon">✅</div>
+          <h3 data-i18n="step6Title">Certification</h3>
+          <p data-i18n="step6Desc">Results are officially certified after thorough review, audits, and any necessary recounts.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SECTION 4 — TIMELINE (Chart.js)
+       ═══════════════════════════════════════════════════════════════ -->
+  <section class="section" id="timeline">
+    <div class="container">
+      <h2 class="section-title fade-in" data-i18n="timelineTitle">Election Timeline</h2>
+      <p class="section-subtitle fade-in" data-i18n="timelineSubtitle">Key milestones in a typical election cycle.</p>
+
+      <div class="chart-wrapper glass-card fade-in">
+        <canvas id="timelineChart"></canvas>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SECTION 5 — "AM I READY TO VOTE?" CHECKER
+       ═══════════════════════════════════════════════════════════════ -->
+  <section class="section section-alt" id="ready-checker">
+    <div class="container">
+      <h2 class="section-title fade-in" data-i18n="readyTitle">Am I Ready to Vote?</h2>
+      <p class="section-subtitle fade-in" data-i18n="readySubtitle">Answer a few questions to check your readiness.</p>
+
+      <div class="checker-card glass-card fade-in">
+        <form id="readyForm">
+          <div class="checker-question">
+            <label data-i18n="readyQ1">Are you 18 years or older?</label>
+            <div class="checker-options">
+              <label class="radio-label"><input type="radio" name="age" value="yes" required> <span data-i18n="yesBtn">Yes</span></label>
+              <label class="radio-label"><input type="radio" name="age" value="no"> <span data-i18n="noBtn">No</span></label>
+            </div>
+          </div>
+          <div class="checker-question">
+            <label data-i18n="readyQ2">Are you a registered voter?</label>
+            <div class="checker-options">
+              <label class="radio-label"><input type="radio" name="registered" value="yes" required> <span data-i18n="yesBtn">Yes</span></label>
+              <label class="radio-label"><input type="radio" name="registered" value="no"> <span data-i18n="noBtn">No</span></label>
+            </div>
+          </div>
+          <div class="checker-question">
+            <label data-i18n="readyQ3">Do you have a valid voter ID?</label>
+            <div class="checker-options">
+              <label class="radio-label"><input type="radio" name="id" value="yes" required> <span data-i18n="yesBtn">Yes</span></label>
+              <label class="radio-label"><input type="radio" name="id" value="no"> <span data-i18n="noBtn">No</span></label>
+            </div>
+          </div>
+          <div class="checker-question">
+            <label data-i18n="readyQ4">Do you know your polling station?</label>
+            <div class="checker-options">
+              <label class="radio-label"><input type="radio" name="polling" value="yes" required> <span data-i18n="yesBtn">Yes</span></label>
+              <label class="radio-label"><input type="radio" name="polling" value="no"> <span data-i18n="noBtn">No</span></label>
+            </div>
+          </div>
+          <button type="submit" class="btn-primary" data-i18n="readyBtn">Check My Readiness</button>
+        </form>
+        <div id="readyResult" class="checker-result"></div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SECTION 6 — FAQ
+       ═══════════════════════════════════════════════════════════════ -->
+  <section class="section" id="faq">
+    <div class="container">
+      <h2 class="section-title fade-in" data-i18n="faqTitle">Frequently Asked Questions</h2>
+      <p class="section-subtitle fade-in" data-i18n="faqSubtitle">Quick answers to common election questions.</p>
+
+      <div class="faq-list">
+        <div class="faq-item glass-card fade-in">
+          <button class="faq-question" data-i18n="faqQ1">What documents do I need to register?
+            <span class="faq-toggle">+</span>
+          </button>
+          <div class="faq-answer">
+            <p data-i18n="faqA1">Typically, you need a government-issued photo ID (driver's license, passport) and proof of address (utility bill, bank statement). Requirements vary by state/country.</p>
+          </div>
+        </div>
+        <div class="faq-item glass-card fade-in">
+          <button class="faq-question" data-i18n="faqQ2">Can I vote if I'm abroad?
+            <span class="faq-toggle">+</span>
+          </button>
+          <div class="faq-answer">
+            <p data-i18n="faqA2">Yes — most countries allow absentee or overseas voting. You'll need to register in advance and request an absentee ballot from your home jurisdiction.</p>
+          </div>
+        </div>
+        <div class="faq-item glass-card fade-in">
+          <button class="faq-question" data-i18n="faqQ3">What is early voting?
+            <span class="faq-toggle">+</span>
+          </button>
+          <div class="faq-answer">
+            <p data-i18n="faqA3">Early voting allows you to cast your ballot before the official Election Day, often at designated locations during a specified period (usually 1–2 weeks before).</p>
+          </div>
+        </div>
+        <div class="faq-item glass-card fade-in">
+          <button class="faq-question" data-i18n="faqQ4">How are votes counted?
+            <span class="faq-toggle">+</span>
+          </button>
+          <div class="faq-answer">
+            <p data-i18n="faqA4">Ballots are collected from polling stations and processed by election officials using optical scanners or manual tallying. Results are verified through audits before certification.</p>
+          </div>
+        </div>
+        <div class="faq-item glass-card fade-in">
+          <button class="faq-question" data-i18n="faqQ5">What if I make a mistake on my ballot?
+            <span class="faq-toggle">+</span>
+          </button>
+          <div class="faq-answer">
+            <p data-i18n="faqA5">If you make a mistake, you can usually request a replacement ballot at the polling station. For mail-in ballots, contact your local election office for guidance before the deadline.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SECTION 7 — MINI QUIZ
+       ═══════════════════════════════════════════════════════════════ -->
+  <section class="section section-alt" id="quiz">
+    <div class="container">
+      <h2 class="section-title fade-in" data-i18n="quizTitle">Test Your Knowledge</h2>
+      <p class="section-subtitle fade-in" data-i18n="quizSubtitle">A quick quiz on election fundamentals.</p>
+
+      <div class="quiz-card glass-card fade-in">
+        <div id="quizContent">
+          <!-- Quiz questions rendered by JS -->
+        </div>
+        <div id="quizResult" class="quiz-result"></div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SECTION 8 — HOW TO VOTE GUIDE
+       ═══════════════════════════════════════════════════════════════ -->
+  <section class="section" id="how-to-vote">
+    <div class="container">
+      <h2 class="section-title fade-in" data-i18n="guideTitle">How to Vote — Step by Step</h2>
+      <p class="section-subtitle fade-in" data-i18n="guideSubtitle">Your complete beginner-friendly walkthrough.</p>
+
+      <div class="guide-timeline">
+        <div class="guide-step fade-in">
+          <div class="guide-marker">1</div>
+          <div class="guide-content glass-card">
+            <h3 data-i18n="guideStep1Title">Check Eligibility</h3>
+            <p data-i18n="guideStep1Desc">Confirm you meet the age, citizenship, and residency requirements for your jurisdiction.</p>
+          </div>
+        </div>
+        <div class="guide-step fade-in">
+          <div class="guide-marker">2</div>
+          <div class="guide-content glass-card">
+            <h3 data-i18n="guideStep2Title">Register to Vote</h3>
+            <p data-i18n="guideStep2Desc">Visit your local election office or use the online portal. Have your ID and proof of address ready.</p>
+          </div>
+        </div>
+        <div class="guide-step fade-in">
+          <div class="guide-marker">3</div>
+          <div class="guide-content glass-card">
+            <h3 data-i18n="guideStep3Title">Find Your Polling Station</h3>
+            <p data-i18n="guideStep3Desc">Use your government's polling station locator tool to find your designated voting place.</p>
+          </div>
+        </div>
+        <div class="guide-step fade-in">
+          <div class="guide-marker">4</div>
+          <div class="guide-content glass-card">
+            <h3 data-i18n="guideStep4Title">Prepare Your Documents</h3>
+            <p data-i18n="guideStep4Desc">Gather your voter ID, registration confirmation, and any other required identification.</p>
+          </div>
+        </div>
+        <div class="guide-step fade-in">
+          <div class="guide-marker">5</div>
+          <div class="guide-content glass-card">
+            <h3 data-i18n="guideStep5Title">Cast Your Vote</h3>
+            <p data-i18n="guideStep5Desc">Visit your polling station on Election Day. Follow the instructions, mark your ballot, and submit it.</p>
+          </div>
+        </div>
+        <div class="guide-step fade-in">
+          <div class="guide-marker">6</div>
+          <div class="guide-content glass-card">
+            <h3 data-i18n="guideStep6Title">Verify & Track</h3>
+            <p data-i18n="guideStep6Desc">Some jurisdictions let you track your ballot online to confirm it was received and counted.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       FOOTER
+       ═══════════════════════════════════════════════════════════════ -->
+  <footer class="footer">
+    <p data-i18n="footerText">© 2026 Election Guide Assistant. Built for educational purposes.</p>
+  </footer>
+
+
+  <!-- Firebase Setup -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-analytics.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBfWOR3oNUwGj5_7IAf_XQ10rlimfsjUzM",
+      authDomain: "nagrik-ai-6b6b9.firebaseapp.com",
+      projectId: "nagrik-ai-6b6b9",
+      storageBucket: "nagrik-ai-6b6b9.firebasestorage.app",
+      messagingSenderId: "462639331983",
+      appId: "1:462639331983:web:65e9b587f2b42892b60efa",
+      measurementId: "G-8NXDY7KQ5M"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+  </script>
+
+  <!-- Custom Script -->
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
